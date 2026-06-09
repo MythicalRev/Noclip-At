@@ -52,6 +52,8 @@ void NoclipData::updateValues(std::string levelName, int index, float newPercent
     arr[index]["toggle"] = newToggle;
 
     getMod()->setSavedValue(levelName, matjson::Value(arr));
+
+    log::debug("Updated toggle to {}", newToggle);
 }
 
 std::vector<std::tuple<float, bool>> NoclipData::getNoclipKeyframes(std::string levelName) {

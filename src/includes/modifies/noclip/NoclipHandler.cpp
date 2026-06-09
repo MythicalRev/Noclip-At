@@ -1,10 +1,10 @@
 #include "NoclipHandler.hpp"
-#include "../../notif.hpp"
+#include "Geode/ui/Notification.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
 
 void NoclipHandler::changeNoclip(bool changeNoclip) {
-    notifapi::info("Noclip Toggled");
+    geode::Notification::create("Noclip Keyframe Reached", NotificationIcon::Info)->show();
     Mod::get()->setSavedValue<bool>("isNoclip", changeNoclip);
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-using namespace geode::prelude;
+#include <Geode/loader/Event.hpp>
 
 class NoclipData {
 public:
@@ -9,3 +9,4 @@ public:
     void updateValues(std::string levelName, int index, float newPercent, bool newToggle);
     std::vector<std::tuple<float, bool>> getNoclipKeyframes(std::string levelName);
 };
+

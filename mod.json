@@ -12,8 +12,7 @@
 	"developer": "MythicalRev",
 	"description": "Enable / Disable noclip at a certain %",
 	"dependencies": {
-		"geode.node-ids": ">=v1.23.3",
-		"miskaa.notif": ">=v1.0.1"
+		"geode.node-ids": ">=v1.23.3"
 	},
 	"resources": {
         "sprites": [

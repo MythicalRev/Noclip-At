@@ -26,7 +26,7 @@ class $modify(BPBPauseLayer, PauseLayer) {
         menu->updateLayout();
     }
 
-    void onButton(CCObject*) {
+    void onButton(CCObject* sender) {
         auto playLayer = PlayLayer::get();
         NoclipDataPopup::create(playLayer->m_level)->show();
     }

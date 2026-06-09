@@ -1,8 +1,11 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include <Geode/binding/ButtonSprite.hpp>
+#include <Geode/binding/CCMenuItemSpriteExtra.hpp>
 #include <Geode/binding/GJGameLevel.hpp>
 #include "../modifies/noclip/NoclipData.hpp"
+#include "Geode/ui/Layout.hpp"
 #include "GrayListBorders.hpp"
 #include "NoclipDataCell.hpp"
 
@@ -10,9 +13,13 @@ using namespace geode::prelude;
 
 class NoclipDataPopup : public Popup {
 protected:
+    GJGameLevel* m_level;
+
     bool init(GJGameLevel* level) {
         if (!Popup::init(350, 260, "GJ_square05.png"))
             return false;
+
+        m_level = level;
 
         this->setTitle("Noclip Keyframes", "bigFont.fnt");
 
@@ -44,6 +51,21 @@ protected:
 
         scrollLayer->m_contentLayer->setLayout(layout);
 
+        auto createBtnSpr = ButtonSprite::create("Create");
+        createBtnSpr->setScale(.75f);
+
+        auto createBtn = CCMenuItemSpriteExtra::create(createBtnSpr, this, menu_selector(NoclipDataPopup::openCreateMenu));
+        
+        auto bMenuLayout = RowLayout::create();
+        bMenuLayout->setAxisAlignment(AxisAlignment::Start);
+        bMenuLayout->setGap(5.f);
+
+        auto bottomMenu = CCMenu::createWithItem(createBtn);
+        bottomMenu->setLayout(bMenuLayout, true);
+        bottomMenu->setContentSize({300, 20});
+
+        m_mainLayer->addChildAtPosition(bottomMenu, Anchor::Bottom, ccp(-5, 20));
+        
         reloadList(level);
 
         return true;
@@ -75,6 +97,12 @@ protected:
 
         scrollLayer->m_contentLayer->updateLayout();
         scrollLayer->moveToTop();
+    }
+
+    void openCreateMenu(CCObject* sender) {
+        NoclipData ncData;
+        ncData.createNewKeyframe(m_level->m_levelName, 10.f, true);
+        reloadList(m_level);
     }
 public:
     ScrollLayer* scrollLayer;

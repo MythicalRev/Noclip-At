@@ -1,37 +1,48 @@
 #include <Geode/Geode.hpp>
 #include "noclip/NoclipHandler.hpp"
+#include "noclip/NoclipData.hpp"
 
 using namespace geode::prelude;
 
 #include <Geode/modify/PlayLayer.hpp>
 
 class $modify(NCPlayLayer, PlayLayer) {
-    /*void update(float dt) {
-        PlayLayer::update(dt);
-
+    struct Fields {
         NoclipHandler ncHandler;
+        NoclipData ncData;
 
-        int levelID = this->m_level->m_levelID.value();
-        auto& session = NoclipData::get()->levelSettings;
+        std::set<std::pair<float, bool>> m_triggeredKeyframes; 
+    };
 
-        if (session.find(levelID) != session.end()) {
-            auto& setting = session[levelID];
+    void updateProgressbar() {
+        PlayLayer::updateProgressbar();
 
-            if (!setting.hasTriggered) {
-                float currentPercent = this->getCurrentPercent();
+        float currentPlayerPercent = this->getCurrentPercent(); 
 
-                if (currentPercent >= setting.targetPercent) {
-                    ncHandler.changeNoclip(setting.enableNoclip);
-                    log::info("Threshold hit! Setting noclip to {}", setting.enableNoclip);
-                    setting.hasTriggered = true; 
+        auto currentKeyframes = m_fields->ncData.getNoclipKeyframes(this->m_level->m_levelName);
+
+        log::debug("{}", currentKeyframes);
+
+        for (const auto& keyframe : currentKeyframes) {
+            float keyframePercent = std::get<0>(keyframe);
+            bool toggleValue = std::get<1>(keyframe);
+
+            if (currentPlayerPercent > keyframePercent) {
+                std::pair<float, bool> runtimeId = { keyframePercent, toggleValue };
+
+                if (!m_fields->m_triggeredKeyframes.contains(runtimeId)) {
+                    m_fields->m_triggeredKeyframes.insert(runtimeId);
+                    
+                    m_fields->ncHandler.changeNoclip(toggleValue);
                 }
             }
         }
-    }*/
+    }
 
     void startGame() {
         PlayLayer::startGame();
-
+        
         Mod::get()->setSavedValue<bool>("isNoclip", false);
+        m_fields->m_triggeredKeyframes.clear();
     }
 };
