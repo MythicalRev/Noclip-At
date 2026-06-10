@@ -5,6 +5,5 @@
 using namespace geode::prelude;
 
 void NoclipHandler::changeNoclip(bool changeNoclip) {
-    geode::Notification::create("Noclip Keyframe Reached", NotificationIcon::Info)->show();
     Mod::get()->setSavedValue<bool>("isNoclip", changeNoclip);
 }
