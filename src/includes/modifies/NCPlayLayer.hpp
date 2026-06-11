@@ -111,8 +111,9 @@ class $modify(NCPlayLayer, PlayLayer) {
 
         if (g_isRunTainted) {
             m_isTestMode = true;
-            PlayLayer::levelComplete();
         }
+
+        PlayLayer::levelComplete();
 
         m_isTestMode = testMode;
     }
