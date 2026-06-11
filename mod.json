@@ -13,7 +13,7 @@
 	"description": "Enable / Disable noclip at a certain %",
 	"dependencies": {
 		"geode.node-ids": ">=v1.23.3",
-		"razoom.save_level_data_api": ">=1.0.5"
+		"cvolton.level-id-api": ">=2.0.0"
 	},
 	"resources": {
         "sprites": [
