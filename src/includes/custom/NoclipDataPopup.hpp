@@ -75,13 +75,13 @@ protected:
         scrollLayer->m_contentLayer->removeAllChildren();
 
         NoclipData noclipData;
-        auto keyframes = noclipData.getNoclipKeyframes(level->m_levelName);
+        auto keyframes = noclipData.getNoclipKeyframes(level);
 
         scrollLayer->m_contentLayer->setContentSize(CCSize(313, 35 * keyframes.size()));
 
         int index = 0;
         for (auto& [percent, toggle] : keyframes) {
-            auto newCell = NoclipDataCell::create(level->m_levelName, index, percent, toggle);
+            auto newCell = NoclipDataCell::create(level, index, percent, toggle);
             newCell->setContentSize(ccp(313, 35));
             newCell->ignoreAnchorPointForPosition(false);
             newCell->setAnchorPoint(ccp(0, 1));
@@ -101,7 +101,7 @@ protected:
 
     void openCreateMenu(CCObject* sender) {
         NoclipData ncData;
-        ncData.createNewKeyframe(m_level->m_levelName, 10.f, true);
+        ncData.createNewKeyframe(m_level, 10.f, true);
         reloadList(m_level);
     }
 public:

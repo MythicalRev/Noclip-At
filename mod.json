@@ -8,11 +8,12 @@
 	},
 	"id": "mythicalrev.noclip-at",
 	"name": "Noclip At",
-	"version": "v1.0.0",
+	"version": "v1.0.1",
 	"developer": "MythicalRev",
 	"description": "Enable / Disable noclip at a certain %",
 	"dependencies": {
-		"geode.node-ids": ">=v1.23.3"
+		"geode.node-ids": ">=v1.23.3",
+		"razoom.save_level_data_api": ">=1.0.5"
 	},
 	"resources": {
         "sprites": [

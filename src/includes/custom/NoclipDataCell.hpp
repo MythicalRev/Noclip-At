@@ -13,12 +13,12 @@ public:
     TextInput* percentInput;
     CCMenuItemToggler* toggleInput;
 
-    std::string lvlName;
+    GJGameLevel* m_level;
     int cellIndex;
 
     std::function<void()> onDelete;
 
-    bool init(std::string levelName, int posIndex, float percent, bool toggle) {
+    bool init(GJGameLevel* level, int posIndex, float percent, bool toggle) {
         if (!CCLayerColor::init()) return false;
 
         if (posIndex == 0 || (posIndex % 2) == 0) {
@@ -75,15 +75,15 @@ public:
         this->addChild(toggleMenu);
         this->addChild(leftMenu);
 
-        lvlName = levelName;
+        m_level = level;
         cellIndex = posIndex;
 
         return true;
     }
 
-    static NoclipDataCell* create(std::string levelName, int posIndex, float percent, bool toggle) {
+    static NoclipDataCell* create(GJGameLevel* level, int posIndex, float percent, bool toggle) {
         NoclipDataCell* pRet = new NoclipDataCell();
-        if (pRet && pRet->init(levelName, posIndex, percent, toggle)) {
+        if (pRet && pRet->init(level, posIndex, percent, toggle)) {
             pRet->autorelease();
             return pRet;
         } else {
@@ -95,7 +95,7 @@ protected:
     void onDeleteKeyframe(CCObject* sender) {
         NoclipData noclipData;
 
-        noclipData.removeKeyframeByIndex(lvlName, cellIndex);
+        noclipData.removeKeyframeByIndex(m_level, cellIndex);
 
         if (onDelete) onDelete();
     }
@@ -106,7 +106,7 @@ protected:
         float percent = geode::utils::numFromString<float>(percentStr).unwrapOr(1.f);
 
         if (percent) {
-            noclipData.updateValues(lvlName, cellIndex, percent, toggle);
+            noclipData.updateValues(m_level, cellIndex, percent, toggle);
         }
     }
 
@@ -117,7 +117,7 @@ protected:
         auto toggler = static_cast<CCMenuItemToggler*>(sender);
 
         if (percent) {
-            noclipData.updateValues(lvlName, cellIndex, percent, !toggler->isOn());
+            noclipData.updateValues(m_level, cellIndex, percent, !toggler->isOn());
         }
     }
 };

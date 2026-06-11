@@ -52,7 +52,7 @@ class $modify(NCPlayLayer, PlayLayer) {
 
         float currentPlayerPercent = this->getCurrentPercent(); 
 
-        auto currentKeyframes = m_fields->ncData.getNoclipKeyframes(this->m_level->m_levelName);
+        auto currentKeyframes = m_fields->ncData.getNoclipKeyframes(this->m_level);
 
         for (const auto& keyframe : currentKeyframes) {
             float keyframePercent = std::get<0>(keyframe);

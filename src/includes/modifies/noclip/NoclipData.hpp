@@ -1,12 +1,13 @@
 #pragma once
 
+#include <Geode/binding/GJGameLevel.hpp>
 #include <Geode/loader/Event.hpp>
 
 class NoclipData {
 public:
-    void createNewKeyframe(std::string levelName, float percent, bool toggle);
-    void removeKeyframeByIndex(std::string levelName, int index);
-    void updateValues(std::string levelName, int index, float newPercent, bool newToggle);
-    std::vector<std::tuple<float, bool>> getNoclipKeyframes(std::string levelName);
+    void createNewKeyframe(GJGameLevel* level, float percent, bool toggle);
+    void removeKeyframeByIndex(GJGameLevel* level, int index);
+    void updateValues(GJGameLevel* level, int index, float newPercent, bool newToggle);
+    std::vector<std::tuple<float, bool>> getNoclipKeyframes(GJGameLevel* level);
 };
 

@@ -1,13 +1,22 @@
 #include "NoclipData.hpp"
 #include <Geode/Geode.hpp>
+#include <Geode/binding/GJGameLevel.hpp>
+#include <matjson.hpp>
+#include <razoom.save_level_data_api/include/SaveLevelDataApi.hpp>
 
 using namespace geode::prelude;
 
-void NoclipData::createNewKeyframe(std::string levelName, float percent, bool toggle) {
+void NoclipData::createNewKeyframe(GJGameLevel* level, float percent, bool toggle) {
     log::debug("Created Keyframe at {}", percent);
     log::debug("Toggle: {}", toggle);
+    
 
-    auto savedKeyframes = getMod()->getSavedValue<matjson::Value>(levelName);
+    auto savedKeyframes = SaveLevelDataAPI::getSavedValue(
+        level,
+        "keyframes",
+        true,
+        true
+    ).unwrapOr(matjson::Value());
 
     if (!savedKeyframes.isArray()) {
         savedKeyframes = matjson::Value(std::vector<matjson::Value>{});
@@ -22,11 +31,22 @@ void NoclipData::createNewKeyframe(std::string levelName, float percent, bool to
 
     arr.push_back(entry);
 
-    getMod()->setSavedValue(levelName, arr);
+    SaveLevelDataAPI::setSavedValue(
+        level,
+        "keyframes",
+        arr,
+        true,
+        true
+    );
 }
 
-void NoclipData::removeKeyframeByIndex(std::string levelName, int index) {
-    auto savedKeyframes = getMod()->getSavedValue<matjson::Value>(levelName);
+void NoclipData::removeKeyframeByIndex(GJGameLevel* level, int index) {
+    auto savedKeyframes = SaveLevelDataAPI::getSavedValue(
+        level,
+        "keyframes",
+        true,
+        true
+    ).unwrapOr(matjson::Value());
 
     if (!savedKeyframes.isArray()) return;
 
@@ -36,11 +56,22 @@ void NoclipData::removeKeyframeByIndex(std::string levelName, int index) {
 
     arr.erase(arr.begin() + index);
 
-    getMod()->setSavedValue(levelName, matjson::Value(arr));
+    SaveLevelDataAPI::setSavedValue(
+        level,
+        "keyframes",
+        arr,
+        true,
+        true
+    );
 }
 
-void NoclipData::updateValues(std::string levelName, int index, float newPercent, bool newToggle) {
-    auto savedKeyframes = getMod()->getSavedValue<matjson::Value>(levelName);
+void NoclipData::updateValues(GJGameLevel* level, int index, float newPercent, bool newToggle) {
+    auto savedKeyframes = SaveLevelDataAPI::getSavedValue(
+        level,
+        "keyframes",
+        true,
+        true
+    ).unwrapOr(matjson::Value());
 
     if (!savedKeyframes.isArray()) return;
 
@@ -51,13 +82,25 @@ void NoclipData::updateValues(std::string levelName, int index, float newPercent
     arr[index]["percent"] = newPercent;
     arr[index]["toggle"] = newToggle;
 
-    getMod()->setSavedValue(levelName, matjson::Value(arr));
+    SaveLevelDataAPI::setSavedValue(
+        level,
+        "keyframes",
+        arr,
+        true,
+        true
+    );
 
     log::debug("Updated toggle to {}", newToggle);
 }
 
-std::vector<std::tuple<float, bool>> NoclipData::getNoclipKeyframes(std::string levelName) {
-    auto savedKeyframes = getMod()->getSavedValue<matjson::Value>(levelName);
+std::vector<std::tuple<float, bool>> NoclipData::getNoclipKeyframes(GJGameLevel * level) {
+    auto savedKeyframes = SaveLevelDataAPI::getSavedValue(
+        level,
+        "keyframes",
+        true,
+        true
+    ).unwrapOr(matjson::Value());
+
     std::vector<std::tuple<float, bool>> keyframes;
 
     if (!savedKeyframes.isArray()) return keyframes;
