@@ -2,6 +2,8 @@
 
 Enable / Disable noclip at a certain %
 
+Mod Idea By: nimpop
+
 ## Additions
 
 - Noclip Enable / Disable noclip at a certain %

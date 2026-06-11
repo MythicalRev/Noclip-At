@@ -106,6 +106,18 @@ class $modify(NCPlayLayer, PlayLayer) {
         PlayLayer::resetLevel();
     }
 
+    void levelComplete() {
+        bool testMode = this->m_isTestMode;
+
+        if (g_isRunTainted) {
+            m_isTestMode = true;
+        }
+
+        m_isTestMode = testMode;
+
+        PlayLayer::levelComplete();
+    }
+
     void onQuit() {
         g_isRunTainted = false;
         g_deaths = 0;
@@ -137,8 +149,6 @@ class $modify(SafeModeEndLevel, EndLevelLayer) {
         auto* banner = CCLabelBMFont::create(
             fmt::format("Noclip Deaths: {}", g_deaths).c_str(), "goldFont.fnt"
         );
-        banner->setScale(0.7f);
-        banner->setZOrder(10);
         this->m_mainLayer->getChildByID("summary-container")->addChild(banner);
         this->m_mainLayer->getChildByID("summary-container")->updateLayout();
     }
