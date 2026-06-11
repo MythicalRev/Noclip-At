@@ -8,7 +8,7 @@
 	},
 	"id": "mythicalrev.noclip-at",
 	"name": "Noclip At",
-	"version": "v1.0.3",
+	"version": "v1.0.4",
 	"developer": "MythicalRev",
 	"description": "Enable / Disable noclip at a certain %",
 	"dependencies": {
