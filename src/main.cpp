@@ -10,19 +10,19 @@ class $modify(BPBPauseLayer, PauseLayer) {
     void customSetup() {
         PauseLayer::customSetup();
 
-        auto spr = CircleButtonSprite::createWithSprite("buttonicon.png"_spr, .75f, CircleBaseColor::Green, CircleBaseSize::Tiny);
+        auto spr = CircleButtonSprite::createWithSprite("buttonicon.png"_spr, 1.f, CircleBaseColor::Green, CircleBaseSize::Tiny);
 
         spr->setScale(1.2f);
 
-        auto openBars = CCMenuItemSpriteExtra::create(
+        auto openKeyframes = CCMenuItemSpriteExtra::create(
             spr,
             this,
             menu_selector(BPBPauseLayer::onButton)
         );
 
         auto menu = this->getChildByID("right-button-menu");
-        menu->addChild(openBars);
-        openBars->setID("openBars"_spr);
+        menu->addChild(openKeyframes);
+        openKeyframes->setID("openKeyframes"_spr);
         menu->updateLayout();
     }
 

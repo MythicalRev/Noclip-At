@@ -8,7 +8,7 @@ using namespace geode::prelude;
 #include <Geode/modify/PlayLayer.hpp>
 
 bool g_isRunTainted;
-GameObject* g_lastKill = nullptr;
+std::unordered_set<GameObject*> g_killList;
 int g_deaths;
 
 class $modify(NCPlayLayer, PlayLayer) {
@@ -42,6 +42,7 @@ class $modify(NCPlayLayer, PlayLayer) {
 
         g_isRunTainted = false;
         g_deaths = 0;
+        g_killList.clear(); 
 
         return true;
     }
@@ -83,10 +84,11 @@ class $modify(NCPlayLayer, PlayLayer) {
     void destroyPlayer(PlayerObject* player, GameObject* object) {
         if (Mod::get()->getSavedValue<bool>("isNoclip")) {
             player->m_isDead = false;
-            if (g_lastKill != object) {
+
+            if (g_killList.insert(object).second) {
                 g_deaths++;
-                g_lastKill = object;
             }
+
             return;
         }
 
@@ -99,6 +101,7 @@ class $modify(NCPlayLayer, PlayLayer) {
         
         g_isRunTainted = false;
         g_deaths = 0;
+        g_killList.clear(); 
 
         PlayLayer::resetLevel();
     }
@@ -106,6 +109,7 @@ class $modify(NCPlayLayer, PlayLayer) {
     void onQuit() {
         g_isRunTainted = false;
         g_deaths = 0;
+        g_killList.clear();
 
         PlayLayer::onQuit();
     }
