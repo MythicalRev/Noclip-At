@@ -138,10 +138,9 @@ class $modify(SafeModeEndLevel, EndLevelLayer) {
             fmt::format("Noclip Deaths: {}", g_deaths).c_str(), "goldFont.fnt"
         );
         banner->setScale(0.7f);
-        banner->setColor({ 255, 80, 80 });
-        banner->setPosition({ winSize.width / 2.f, winSize.height / 2.f - 40.f });
         banner->setZOrder(10);
-        this->m_mainLayer->addChild(banner);
+        this->m_mainLayer->getChildByID("summary-container")->addChild(banner);
+        this->m_mainLayer->getChildByID("summary-container")->updateLayout();
     }
 };
  
