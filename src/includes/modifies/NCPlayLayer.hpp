@@ -1,15 +1,30 @@
 #include <Geode/Geode.hpp>
 #include <Geode/binding/GameObject.hpp>
+#include <format>
+#include <string>
+#include "Geode/cocos/actions/CCActionInterval.h"
+#include "Geode/cocos/base_nodes/CCNode.h"
+#include "Geode/cocos/label_nodes/CCLabelBMFont.h"
+#include "Geode/loader/SettingV3.hpp"
+#include "Geode/ui/Layout.hpp"
+#include "ccTypes.h"
 #include "noclip/NoclipHandler.hpp"
 #include "noclip/NoclipData.hpp"
 
 using namespace geode::prelude;
 
 #include <Geode/modify/PlayLayer.hpp>
+#include <Geode/modify/GJBaseGameLayer.hpp>
 
 bool g_isRunTainted;
 std::unordered_set<GameObject*> g_killList;
 int g_deaths;
+
+int totalFrames;
+int deadFrames;
+
+bool deadLastFrame = false;
+bool wouldDieLastFrame = false;
 
 class $modify(NCPlayLayer, PlayLayer) {
     struct Fields {
@@ -17,7 +32,13 @@ class $modify(NCPlayLayer, PlayLayer) {
         NoclipData ncData;
 
         std::set<std::pair<float, bool>> m_triggeredKeyframes; 
+
+        CCMenu* statsMenu = nullptr;
+
         CCSprite* noclipIndicator = nullptr;
+        CCLayerColor* tintNode = nullptr;
+        CCLabelBMFont* deaths = nullptr;
+        CCLabelBMFont* acc = nullptr;
     };
 
     static void onModify(auto& self) {
@@ -32,17 +53,57 @@ class $modify(NCPlayLayer, PlayLayer) {
         Mod::get()->setSavedValue<bool>("isNoclip", false);
         m_fields->m_triggeredKeyframes.clear();
 
+        auto layout = ColumnLayout::create();
+        layout->setGap(.5f);
+        layout->setAxisReverse(true);
+        layout->setAutoScale(false);
+        layout->setAxisAlignment(AxisAlignment::End);
+        layout->setCrossAxisAlignment(AxisAlignment::End);
+        layout->setCrossAxisLineAlignment(AxisAlignment::End);
+
+        m_fields->statsMenu = CCMenu::create();
+        m_fields->statsMenu->setAnchorPoint({1, 1});
+        m_fields->statsMenu->setContentSize({300,200});
+        this->addChildAtPosition(m_fields->statsMenu, Anchor::TopRight, {-8, -8}, false);
+
         m_fields->noclipIndicator = CCSprite::create("noclipIndicator.png"_spr);
         if (m_fields->noclipIndicator) {
             m_fields->noclipIndicator->setScale(0.035f);
             m_fields->noclipIndicator->setOpacity(127);
-            m_fields->noclipIndicator->setVisible(false);
-            this->addChildAtPosition(m_fields->noclipIndicator, Anchor::TopRight, ccp(-8, -8), false);
+            m_fields->noclipIndicator->setVisible(true);
+            m_fields->noclipIndicator->setAnchorPoint({1, 1});
+            m_fields->statsMenu->addChild(m_fields->noclipIndicator);
         }
+
+        m_fields->acc = CCLabelBMFont::create("Accuracy: 100%", "bigFont.fnt");
+        m_fields->acc->setScale(0.35f);
+        m_fields->acc->setOpacity(127);
+        m_fields->acc->setVisible(true);
+        m_fields->acc->setAnchorPoint({1, 1});
+        m_fields->statsMenu->addChild(m_fields->acc);
+
+        m_fields->deaths = CCLabelBMFont::create("Deaths: 0", "bigFont.fnt");
+        m_fields->deaths->setScale(0.35f);
+        m_fields->deaths->setOpacity(127);
+        m_fields->deaths->setVisible(true);
+        m_fields->deaths->setAnchorPoint({1, 1});
+        m_fields->statsMenu->addChild(m_fields->deaths);
+
+        m_fields->statsMenu->setLayout(layout, true);
 
         g_isRunTainted = false;
         g_deaths = 0;
         g_killList.clear(); 
+
+        auto wSize = CCDirector::get()->getWinSize();
+
+        m_fields->tintNode = CCLayerColor::create();
+        m_fields->tintNode->setColor(Mod::get()->getSettingValue<ccColor3B>("deathTint"));
+        m_fields->tintNode->setOpacity(0);
+        m_fields->tintNode->setContentSize(wSize);
+        m_fields->tintNode->ignoreAnchorPointForPosition(true);
+
+        this->addChild(m_fields->tintNode);
 
         return true;
     }
@@ -69,25 +130,30 @@ class $modify(NCPlayLayer, PlayLayer) {
             }
         }
 
-        if (Mod::get()->getSavedValue<bool>("isNoclip") == true) {
-            if (m_fields->noclipIndicator != nullptr) {
-                m_fields->noclipIndicator->setVisible(true);
+        totalFrames++;
+
+        if (m_fields->deaths && m_fields->acc) {
+            m_fields->deaths->setString(std::format("Deaths: {}", g_deaths).c_str());
+            
+            float accuracy = (static_cast<float>(totalFrames - deadFrames) / totalFrames) * 100.0f;
+            m_fields->acc->setString(std::format("Accuracy: {:.2f}%", accuracy).c_str());
+        }
+
+        if (Mod::get()->getSavedValue<bool>("isNoclip")) {
+            if (m_fields->statsMenu != nullptr) {
+                m_fields->statsMenu->setVisible(true);
                 g_isRunTainted = true;
-            }
-        } else {
-            if (m_fields->noclipIndicator != nullptr) {
-                m_fields->noclipIndicator->setVisible(false);
             }
         }
     }
 
     void destroyPlayer(PlayerObject* player, GameObject* object) {
         if (Mod::get()->getSavedValue<bool>("isNoclip")) {
-            player->m_isDead = false;
+            wouldDieLastFrame = true;
 
-            if (g_killList.insert(object).second) {
-                g_deaths++;
-            }
+            m_fields->tintNode->stopAllActions(); 
+            m_fields->tintNode->setOpacity(50);
+            m_fields->tintNode->runAction(CCFadeTo::create(0.5f, 0));
 
             return;
         }
@@ -102,6 +168,15 @@ class $modify(NCPlayLayer, PlayLayer) {
         g_isRunTainted = false;
         g_deaths = 0;
         g_killList.clear(); 
+
+        totalFrames = 0;
+        deadFrames = 0;
+
+        wouldDieLastFrame = false;
+
+        if (m_fields->statsMenu) {
+            m_fields->statsMenu->setVisible(false);
+        }
 
         PlayLayer::resetLevel();
     }
@@ -123,6 +198,9 @@ class $modify(NCPlayLayer, PlayLayer) {
         g_deaths = 0;
         g_killList.clear();
 
+        totalFrames = 0;
+        deadFrames = 0;
+
         PlayLayer::onQuit();
     }
 
@@ -134,6 +212,32 @@ class $modify(NCPlayLayer, PlayLayer) {
         if (g_isRunTainted) return;
         PlayLayer::showNewBest(newReward, orbs, diamonds, demonKey, noRetry, noTitle);
     }
+};
+
+class $modify(NoClipGJBGLHook, GJBaseGameLayer) {
+    void processNoclipDeaths() {
+        if (wouldDieLastFrame) {
+            deadFrames++;
+            if (!deadLastFrame) {
+                g_deaths++;
+            }
+        }
+
+        deadLastFrame = wouldDieLastFrame;
+        wouldDieLastFrame = false;
+    }
+
+    #ifndef GEODE_IS_MACOS
+    void processCommands(float dt, bool isHalfTick, bool isLastTick) {
+        GJBaseGameLayer::processCommands(dt, isHalfTick, isLastTick);
+        this->processNoclipDeaths();
+    }
+    #else
+    void processQueuedButtons(float dt, bool clearInputQueue) {
+        GJBaseGameLayer::processQueuedButtons(dt, clearInputQueue);
+        this->processNoclipDeaths();
+    }
+    #endif
 };
 
 #include <Geode/modify/EndLevelLayer.hpp>

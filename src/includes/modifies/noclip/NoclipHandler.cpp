@@ -1,5 +1,4 @@
 #include "NoclipHandler.hpp"
-#include "Geode/ui/Notification.hpp"
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
