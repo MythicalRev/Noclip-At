@@ -3,6 +3,7 @@
 Enable / Disable noclip at a certain %
 
 Mod Idea By: nimpop
+Mod Icon By: Xen
 
 ## Additions
 

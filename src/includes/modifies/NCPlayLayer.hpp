@@ -7,6 +7,7 @@
 #include "Geode/cocos/label_nodes/CCLabelBMFont.h"
 #include "Geode/loader/SettingV3.hpp"
 #include "Geode/ui/Layout.hpp"
+#include "Geode/utils/general.hpp"
 #include "ccTypes.h"
 #include "noclip/NoclipHandler.hpp"
 #include "noclip/NoclipData.hpp"
@@ -133,10 +134,10 @@ class $modify(NCPlayLayer, PlayLayer) {
         totalFrames++;
 
         if (m_fields->deaths && m_fields->acc) {
-            m_fields->deaths->setString(std::format("Deaths: {}", g_deaths).c_str());
+            m_fields->deaths->setString(std::format("Deaths: {}", geode::utils::numToString(g_deaths)).c_str());
             
             float accuracy = (static_cast<float>(totalFrames - deadFrames) / totalFrames) * 100.0f;
-            m_fields->acc->setString(std::format("Accuracy: {:.2f}%", accuracy).c_str());
+            m_fields->acc->setString(fmt::format("Accuracy: {}%", geode::utils::numToString(accuracy, 2)).c_str());
         }
 
         if (Mod::get()->getSavedValue<bool>("isNoclip")) {
@@ -251,7 +252,7 @@ class $modify(SafeModeEndLevel, EndLevelLayer) {
         auto winSize = CCDirector::sharedDirector()->getWinSize();
  
         auto* banner = CCLabelBMFont::create(
-            fmt::format("Noclip Deaths: {}", g_deaths).c_str(), "goldFont.fnt"
+            fmt::format("Noclip Deaths: {}", geode::utils::numToString(g_deaths)).c_str(), "goldFont.fnt"
         );
         this->m_mainLayer->getChildByID("summary-container")->addChild(banner);
         this->m_mainLayer->getChildByID("summary-container")->updateLayout();
