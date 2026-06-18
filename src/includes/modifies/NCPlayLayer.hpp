@@ -65,7 +65,12 @@ class $modify(NCPlayLayer, PlayLayer) {
         m_fields->statsMenu = CCMenu::create();
         m_fields->statsMenu->setAnchorPoint({1, 1});
         m_fields->statsMenu->setContentSize({300,200});
-        this->addChildAtPosition(m_fields->statsMenu, Anchor::TopRight, {-8, -8}, false);
+        m_fields->statsMenu->setID("nc-stats"_spr);
+        this->m_uiLayer->addChild(m_fields->statsMenu);
+
+        CCSize scrnSize = CCDirector::get()->getWinSize();
+
+        m_fields->statsMenu->setPosition({scrnSize.width - 8.f, scrnSize.height - 8.f});
 
         m_fields->noclipIndicator = CCSprite::create("noclipIndicator.png"_spr);
         if (m_fields->noclipIndicator) {
@@ -103,6 +108,7 @@ class $modify(NCPlayLayer, PlayLayer) {
         m_fields->tintNode->setOpacity(0);
         m_fields->tintNode->setContentSize(wSize);
         m_fields->tintNode->ignoreAnchorPointForPosition(true);
+        m_fields->tintNode->setID("nc-tint"_spr);
 
         this->addChild(m_fields->tintNode);
 
@@ -137,7 +143,7 @@ class $modify(NCPlayLayer, PlayLayer) {
             m_fields->deaths->setString(fmt::format("Deaths: {}", g_deaths).c_str());
             
             float accuracy = (static_cast<float>(totalFrames - deadFrames) / totalFrames) * 100.0f;
-            m_fields->acc->setString(fmt::format("Accuracy: {}%", accuracy, 2).c_str());
+            m_fields->acc->setString(fmt::format("Accuracy: {}%", fmt::format("{:.2f}", accuracy)).c_str());
         }
 
         if (Mod::get()->getSavedValue<bool>("isNoclip")) {
